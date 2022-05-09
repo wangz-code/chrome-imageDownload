@@ -1,6 +1,6 @@
 # chrome-imageDownload
 
-谷歌插件--抓取网站图片并下载
+chrome插件--抓取公众号网站图片并下载
 
 基于 : [https://github.com/DG-King/chrome-imageDownload]
 

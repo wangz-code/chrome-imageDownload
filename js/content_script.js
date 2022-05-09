@@ -23,9 +23,12 @@ var tittle = document.getElementsByTagName("title")[0].innerText;
 for (var i = 0; img[i]; i++) {
 	var src = img[i].getAttribute("src");
 	if (src && !src.includes("logo")) {
-		imgValue[src] = filename(i, src);
+		var newFileName = filename(i, src);
+		if (newFileName.includes(".")) {
+			imgValue[src] = newFileName;
+			sources.push(src);
+		}
 	}
-	sources.push(src);
 }
 
 chrome.runtime.sendMessage(

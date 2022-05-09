@@ -19,16 +19,20 @@ function fileType(key, url) {
 
 function handleMessage(request, sender, sendResponse) {
 	var res = request.greeting;
-	var sources = res.sources;
 	var imgValue = res.imgValue;
 	var tittle = res.tittle;
 	var btnAll = document.getElementById("downall");
 	var textarea = document.getElementById("textarea");
 	var total = document.getElementById("total");
 	textarea.value = JSON.stringify(imgValue);
-	total.innerText = sources.length;
+	var urlArr = [];
+	for (const key in imgValue) {
+		urlArr.push(key);
+	}
+	total.innerText = urlArr.length;
+
 	btnAll.onclick = function () {
-		sources.map(function (url, k) {
+		urlArr.map(function (url, k) {
 			chrome.downloads.download(
 				{
 					url: url,

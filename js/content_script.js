@@ -6,19 +6,23 @@ var sources = [],
 origin = location.origin;
 
 function filename(key, url) {
-	let n = url.split("wx_fmt=")[1];
+	let n = "";
+	let types = ["jpg", "png", "gif"];
+	types.forEach((item) => {
+		if (url.includes(item)) {
+			n = "." + item;
+		}
+	});
 	let path = "pic_";
-	if (n == "jpeg") {
-		return path + key.toString().padStart(3, "00") + ".jpg";
-	}
-	return path + key.toString().padStart(3, "00") + "." + n;
+	return path + key.toString().padStart(3, "00") + n;
 }
 
 var img = document.getElementsByTagName("img");
+var tittle = document.getElementsByTagName("title")[0].innerText;
 
 for (var i = 0; img[i]; i++) {
 	var src = img[i].getAttribute("src");
-	if (!src.includes("logo")) {
+	if (src && !src.includes("logo")) {
 		imgValue[src] = filename(i, src);
 	}
 	sources.push(src);
@@ -26,7 +30,7 @@ for (var i = 0; img[i]; i++) {
 
 chrome.runtime.sendMessage(
 	{
-		greeting: { sources, imgValue },
+		greeting: { sources, imgValue, tittle },
 	},
 	function (e) {}
 );

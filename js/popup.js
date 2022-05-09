@@ -5,21 +5,23 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 	});
 });
 
-
 function fileType(key, url) {
-	let n = url.split("wx_fmt=")[1];
+	let t = "";
+	let types = ["jpg", "png", "gif"];
+	types.forEach((item) => {
+		if (url.includes(item)) {
+			t = "." + item;
+		}
+	});
 	let path = "./下载/pic_";
-	if (n == "jpeg") {
-		return path + key.toString().padStart(3, "00") + ".jpg";
-	}
-	return path + key.toString().padStart(3, "00") + "." + n;
+	return path + key.toString().padStart(3, "00") + t;
 }
-
 
 function handleMessage(request, sender, sendResponse) {
 	var res = request.greeting;
 	var sources = res.sources;
 	var imgValue = res.imgValue;
+	var tittle = res.tittle;
 	var btnAll = document.getElementById("downall");
 	var textarea = document.getElementById("textarea");
 	var total = document.getElementById("total");
@@ -32,12 +34,12 @@ function handleMessage(request, sender, sendResponse) {
 					url: url,
 					conflictAction: "uniquify",
 					saveAs: false,
-					filename: "./下载/" + imgValue[url],
+					filename: "./" + tittle + "/" + imgValue[url],
 				},
 				function (id) {}
 			);
 		});
 	};
-    sendResponse({farewell: "ok"});   
+	sendResponse({ farewell: "ok" });
 }
 chrome.runtime.onMessage.addListener(handleMessage);

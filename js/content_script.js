@@ -1,43 +1,32 @@
+var imgValue = {};
 var sources = [],
-    i = 0,
-    bgIm,
-    protocol = location.protocol;
-    origin = location.origin;
+	i = 0,
+	bgIm,
+	protocol = location.protocol;
+origin = location.origin;
 
-function getStyle(x, styleProp)
-{
-    if (x.currentStyle)
-    {
-        var y = x.currentStyle[styleProp];
-    }
-    else if (window.getComputedStyle)
-    {
-        var y = document.defaultView.getComputedStyle(x, null).getPropertyValue(styleProp);
-    }
-    return y;
+function filename(key, url) {
+	let n = url.split("wx_fmt=")[1];
+	let path = "pic_";
+	if (n == "jpeg") {
+		return path + key.toString().padStart(3, "00") + ".jpg";
+	}
+	return path + key.toString().padStart(3, "00") + "." + n;
 }
 
-var elements = document.getElementsByTagName('*');
+var img = document.getElementsByTagName("img");
 
-for (; elements[i]; i++)
-{
-    var source;
-    if (elements[i].nodeName == "IMG")
-    {
-        source = elements[i].getAttribute('src');
-    } 
-    else 
-    {
-        bgIm = getStyle(elements[i], 'background-image');
-        if (bgIm && bgIm !== 'none') 
-        {
-            bgIm = /url\(['"]?([^")]+)/.exec(bgIm) || [];
-            source = bgIm[1]
-        }
-    }
-    source = source && source.slice(0, 2) == "//" ? protocol + source : source
-    source = source && source.slice(0, 1) == "/" ? origin + source : source
-    if (source && sources.indexOf(source) == -1 && source.indexOf("chrome-extension://") == -1)
-        sources.push(source);
+for (var i = 0; img[i]; i++) {
+	var src = img[i].getAttribute("src");
+	if (!src.includes("logo")) {
+		imgValue[src] = filename(i, src);
+	}
+	sources.push(src);
 }
-chrome.extension.sendRequest(sources);
+
+chrome.runtime.sendMessage(
+	{
+		greeting: { sources, imgValue },
+	},
+	function (e) {}
+);

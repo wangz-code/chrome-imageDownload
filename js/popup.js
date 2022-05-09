@@ -1,42 +1,43 @@
-chrome.tabs.query({active: true, currentWindow: true}, function(tabs)
-{
-    chrome.tabs.executeScript(tabs[0].id, {file: 'js/content_script.js', allFrames: true}, _=>
-    {
-        let e = chrome.runtime.lastError;
-        if(e !== undefined){
-            console.log(tabs[0].id, _, e);
-        }
-    });
+chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+	chrome.scripting.executeScript({
+		target: { tabId: tabs[0].id, allFrames: true },
+		files: ["js/content_script.js"],
+	});
 });
 
-chrome.extension.onRequest.addListener(function(sources) 
-{
-    var fragment = document.createDocumentFragment();
-    sources.map(url =>
-    {
-        var li = document.createElement("li");
-        li.className = "img-item";
-        var img = document.createElement("img");
-        img.src = url;
-        img.onload = function()
-        {
-            img.title = `${img.width}*${img.height}`;
-        }
-        li.appendChild(img);
-        var span = document.createElement("span");
-        span.innerText = "下载";
-        span.onclick = function()
-        {
-            chrome.downloads.download({ 
-                url: url,
-                conflictAction: 'uniquify',
-                saveAs: false
-            }, function(id){});
-        }
-        li.appendChild(span);
-        fragment.append(li);
-    })
-    document.getElementById("content").append(fragment);
-    document.getElementById("total").innerText = document.getElementsByTagName("li").length;
-});
 
+function fileType(key, url) {
+	let n = url.split("wx_fmt=")[1];
+	let path = "./下载/pic_";
+	if (n == "jpeg") {
+		return path + key.toString().padStart(3, "00") + ".jpg";
+	}
+	return path + key.toString().padStart(3, "00") + "." + n;
+}
+
+
+function handleMessage(request, sender, sendResponse) {
+	var res = request.greeting;
+	var sources = res.sources;
+	var imgValue = res.imgValue;
+	var btnAll = document.getElementById("downall");
+	var textarea = document.getElementById("textarea");
+	var total = document.getElementById("total");
+	textarea.value = JSON.stringify(imgValue);
+	total.innerText = sources.length;
+	btnAll.onclick = function () {
+		sources.map(function (url, k) {
+			chrome.downloads.download(
+				{
+					url: url,
+					conflictAction: "uniquify",
+					saveAs: false,
+					filename: "./下载/" + imgValue[url],
+				},
+				function (id) {}
+			);
+		});
+	};
+    sendResponse({farewell: "ok"});   
+}
+chrome.runtime.onMessage.addListener(handleMessage);
